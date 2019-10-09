@@ -7,6 +7,7 @@
     "express": "4.17.0"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
     "eslint": "6.2.2",
     "eslint-config-airbnb": "18.0.1",
     "eslint-config-prettier": "6.1.0",
@@ -19,6 +20,8 @@
     "eslint-plugin-security": "1.4.0",
     "eslint-plugin-you-dont-need-lodash-underscore": "6.6.0",
     "jest": "24.8.0",
+    "mocha": "^6.2.1",
+    "nyc": "^14.1.1",
     "prettier": "1.17.1",
     "supertest": "4.0.2"
   },
@@ -33,7 +36,7 @@
     "prettier": "./node_modules/.bin/prettier --write \"**/{*.js,*.json,bin/**}\"",
     "prettier:check": "./node_modules/.bin/prettier --check \"**/{*.js,*.json,bin/**}\"",
     "start": "node ./bin/www",
-    "test": "./node_modules/.bin/jest --runInBand --forceExit",
+    "test": "NODE_ENV=test mocha --reporter spec",
     "test:acceptance": "./node_modules/.bin/jest --runInBand --forceExit test/acceptance/*",
     "test:integration": "./node_modules/.bin/jest --runInBand --forceExit test/integration/*",
     "test:unit": "./node_modules/.bin/jest --runInBand --forceExit test/unit/*",
