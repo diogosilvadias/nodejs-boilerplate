@@ -1,10 +1,11 @@
+const { expect } = require('chai')
 const HealthCheckService = require('../../../services/healthcheck-service')
 
 describe('HealthCheckService', () => {
   describe('check()', () => {
     it("should return { stauts: 'ok' } ", async () => {
       const status = await HealthCheckService.status()
-      expect(status).toMatchObject({
+      expect(status).to.be.eql({
         status: 'ok'
       })
     })
