@@ -3,9 +3,14 @@
     "commonjs": true,
     "node": true
   },
+  "globals": {
+    "describe": true,
+    "before": true,
+    "context": true,
+    "it": true
+  },
   "extends": [
     "airbnb",
-    "plugin:jest/recommended",
     "plugin:security/recommended",
     "plugin:you-dont-need-lodash-underscore/compatible",
     "prettier"
