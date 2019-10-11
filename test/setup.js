@@ -1,2 +1,1 @@
-// Setup file to config environment
-// before run the tests
+process.env.NODE_ENV = 'test'
