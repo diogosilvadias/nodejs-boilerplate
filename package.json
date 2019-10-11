@@ -36,7 +36,7 @@
     "prettier": "./node_modules/.bin/prettier --write \"**/{*.js,*.json,bin/**}\"",
     "prettier:check": "./node_modules/.bin/prettier --check \"**/{*.js,*.json,bin/**}\"",
     "start": "node ./bin/www",
-    "test": "NODE_ENV=test mocha --reporter spec",
+    "test": "NODE_ENV=test ./node_modules/.bin/nyc mocha --reporter spec",
     "test:acceptance": "./node_modules/.bin/jest --runInBand --forceExit test/acceptance/*",
     "test:integration": "./node_modules/.bin/jest --runInBand --forceExit test/integration/*",
     "test:unit": "./node_modules/.bin/jest --runInBand --forceExit test/unit/*",
