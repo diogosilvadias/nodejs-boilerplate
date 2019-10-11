@@ -26,7 +26,6 @@
     "supertest": "4.0.2"
   },
   "scripts": {
-    "cron:<cron-name>": "node scripts/cron-<cron-name>.js",
     "deps": "docker-compose up --build --force-recreate",
     "eslint": "./node_modules/.bin/eslint --fix .",
     "eslint:check": "./node_modules/.bin/eslint .",
@@ -37,9 +36,9 @@
     "prettier:check": "./node_modules/.bin/prettier --check \"**/{*.js,*.json,bin/**}\"",
     "start": "node ./bin/www",
     "test": "NODE_ENV=test ./node_modules/.bin/nyc mocha --reporter spec",
-    "test:acceptance": "./node_modules/.bin/jest --runInBand --forceExit test/acceptance/*",
-    "test:integration": "./node_modules/.bin/jest --runInBand --forceExit test/integration/*",
-    "test:unit": "./node_modules/.bin/jest --runInBand --forceExit test/unit/*",
+    "test:acceptance": "./node_modules/.bin/mocha test/acceptance/*",
+    "test:integration": "./node_modules/.bin/mocha test/integration/*",
+    "test:unit": "./node_modules/.bin/mocha test/unit/*",
     "worker:<worker-name>": "node worker/<worker-name.js>"
   },
   "repository": {
