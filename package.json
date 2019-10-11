@@ -36,6 +36,7 @@
     "prettier:check": "./node_modules/.bin/prettier --check \"**/{*.js,*.json,bin/**}\"",
     "start": "node ./bin/www",
     "test": "NODE_ENV=test ./node_modules/.bin/nyc mocha --reporter spec",
+    "test:coverage-report": "npm run test && nyc report --reporter=text-lcov > coverage.lcov",
     "test:acceptance": "./node_modules/.bin/mocha test/acceptance/*",
     "test:integration": "./node_modules/.bin/mocha test/integration/*",
     "test:unit": "./node_modules/.bin/mocha test/unit/*",
