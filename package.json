@@ -37,7 +37,7 @@
     "test:acceptance": "./node_modules/.bin/jest --coverage test/acceptance/*",
     "test:integration": "./node_modules/.bin/jest --coverage test/integration/*",
     "test:unit": "./node_modules/.bin/jest --coverage test test/unit/*",
-    "worker:<worker-name>": "node worker/<worker-name.js>"
+    "worker:<worker-name>": "node workers/<worker-name.js>"
   },
   "repository": {
     "type": "git",
