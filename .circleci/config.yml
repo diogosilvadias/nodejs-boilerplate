@@ -4,7 +4,7 @@ commands:
   all-tests:
     description: "Roda todos os testes do projeto (unitários e integração)"
     steps:
-      - run: "npm run test:coverage-report"
+      - run: "npm t && npm run test:coverage-report"
 
 jobs:
   node10x: &template
