@@ -3,12 +3,6 @@
     "commonjs": true,
     "node": true
   },
-  "globals": {
-    "describe": true,
-    "before": true,
-    "context": true,
-    "it": true
-  },
   "extends": [
     "airbnb",
     "plugin:security/recommended",
