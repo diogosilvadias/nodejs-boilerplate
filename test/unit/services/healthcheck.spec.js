@@ -1,4 +1,3 @@
-const { expect } = require('chai')
 const HealthCheckService = require('../../../services/healthcheck-service')
 
 describe('HealthCheckService', () => {
