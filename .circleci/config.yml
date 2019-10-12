@@ -7,9 +7,9 @@ commands:
       - run: "npm t && npm run test:coverage-report"
 
 jobs:
-  node10x: &template
+  node12x: &template
     docker:
-      - image: circleci/node:10-jessie
+      - image: circleci/node:12
         #auth:
           #username: $B2WADS_DOCKER_REGISTRY_USERNAME
           #password: $B2WADS_DOCKER_REGISTRY_PASSWORD
@@ -29,10 +29,10 @@ jobs:
       - run:
           when: on_success
           command: bash <(curl -s https://codecov.io/bash)
-  node11x:
+  node13x:
       <<: *template
       docker:
-        - image: circleci/node:11
+        - image: circleci/node:13
         #- image: mongo:3.6
         #- image: elasticsearch:5
         #- image: rabbitmq:3.6-alpine
@@ -47,9 +47,9 @@ workflows:
   version: 2
   required-checks:
     jobs:
-      - node10x:
+      - node12x:
           context: docker-registry-auth
   optional-checks:
     jobs:
-      - node11x:
+      - node13x:
           context: docker-registry-auth
