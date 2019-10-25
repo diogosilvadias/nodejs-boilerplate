@@ -58,9 +58,11 @@ jobs:
       - run:
           name: Comment in PR the build status
           command: |
+            GITHUB_PR_PAGE_URL="https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$CIRCLE_PR_NUMBER/comments"
+            echo "$GITHUB_PR_PAGE_URL"
             curl -d  "{\"body\":\"docker.sieve.com.br/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:$CIRCLE_SHA1\"}" -H "Content-Type: application/json" 
             -H "Authorization: token $B2WADS_GITHUB_API_TOKEN" 
-            -X POST https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$CIRCLE_PR_NUMBER/comments
+            -X POST "$GITHUB_PR_PAGE_URL"
 
 # O `context:` abaixo deve ser usado se você precisa
 # de uma imagem privada. Nesse context devem estar cadastradas as envs:
