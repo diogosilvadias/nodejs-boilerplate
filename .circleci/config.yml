@@ -41,7 +41,7 @@ jobs:
         #- image: rabbitmq:3.6-alpine
         #- image: redis:5
 
-  check-and-build-and-push:
+  build-and-push:
     executor: docker/machine
     steps:
       - checkout
@@ -72,7 +72,7 @@ workflows:
     jobs:
       - node10x:
           context: docker-registry-auth
-      - check-and-build-only:
+      - build-and-push:
           context: docker-registry-auth
 
   optional-checks:
