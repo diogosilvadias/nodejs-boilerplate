@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  docker: circleci/docker@0.5.13
+
 commands:
   all-tests:
     description: "Roda todos os testes do projeto (unitários e integração)"
@@ -38,6 +41,16 @@ jobs:
         #- image: rabbitmq:3.6-alpine
         #- image: redis:5
 
+  check-and-build-only:
+    executor: docker/machine
+    steps:
+      - checkout
+      - docker/check:
+          docker-username: B2WADS_DOCKER_REGISTRY_USERNAME
+          docker-password: B2WADS_DOCKER_REGISTRY_PASSWORD
+      - docker/build:
+          image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+
 
 # O `context:` abaixo deve ser usado se você precisa
 # de uma imagem privada. Nesse context devem estar cadastradas as envs:
@@ -49,6 +62,9 @@ workflows:
     jobs:
       - node10x:
           context: docker-registry-auth
+      - check-and-build-only:
+          context: docker-registry-auth
+
   optional-checks:
     jobs:
       - node11x:
