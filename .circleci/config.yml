@@ -46,6 +46,7 @@ jobs:
     steps:
       - checkout
       - docker/check:
+          registry: docker.sieve.com.br
           docker-username: B2WADS_DOCKER_REGISTRY_USERNAME
           docker-password: B2WADS_DOCKER_REGISTRY_PASSWORD
       - docker/build:
