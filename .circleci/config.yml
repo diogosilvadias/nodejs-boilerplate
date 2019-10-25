@@ -41,7 +41,7 @@ jobs:
         #- image: rabbitmq:3.6-alpine
         #- image: redis:5
 
-  check-and-build-only:
+  check-and-build-and-push:
     executor: docker/machine
     steps:
       - checkout
@@ -55,7 +55,12 @@ jobs:
       - docker/push:
           registry: docker.sieve.com.br
           image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
-
+      - run:
+          name: Comment in PR the build status
+          command: |
+            curl -d  "{\"body\":\"docker.sieve.com.br/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:$CIRCLE_SHA1\"}" -H "Content-Type: application/json" 
+            -H "Authorization: token $B2WADS_GITHUB_API_TOKEN" 
+            -X POST https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$CIRCLE_PR_NUMBER/comments
 
 # O `context:` abaixo deve ser usado se você precisa
 # de uma imagem privada. Nesse context devem estar cadastradas as envs:
