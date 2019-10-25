@@ -58,7 +58,7 @@ jobs:
       - run:
           name: Comment in PR the build status
           command: |
-            GITHUB_PR_NUMBER=$(echo "$CIRCLECI_PULL_REQUEST" | sed 's/.*\/pull\///g')
+            GITHUB_PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | sed 's/.*\/pull\///g')
             GITHUB_PR_PAGE_PATH="/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$GITHUB_PR_NUMBER/comments"
             echo "$GITHUB_PR_PAGE_PATH"
             curl -d  "{\"body\":\"docker.sieve.com.br/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:$CIRCLE_SHA1\"}" -H "Content-Type: application/json" \
