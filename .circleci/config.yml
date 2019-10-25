@@ -58,8 +58,8 @@ jobs:
       - run:
           name: Comment in PR the build status
           command: |
-            echo "$CIRCLE_PULL_REQUEST"
-            GITHUB_PR_PAGE_URL="https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$CIRCLE_PR_NUMBER/comments"
+            GITHUB_PR_NUMBER=$(echo "$CIRCLECI_PULL_REQUEST" | sed 's/.*\/pull\///g')
+            GITHUB_PR_PAGE_URL="https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$GITHUB_PR_NUMBER/comments"
             echo "$GITHUB_PR_PAGE_URL"
             curl -d  "{\"body\":\"docker.sieve.com.br/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:$CIRCLE_SHA1\"}" -H "Content-Type: application/json" 
             -H "Authorization: token $B2WADS_GITHUB_API_TOKEN" 
