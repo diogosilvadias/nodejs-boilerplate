@@ -60,7 +60,7 @@ jobs:
           command: |
             GITHUB_PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | sed 's/.*\/pull\///g')
             GITHUB_PR_PAGE_PATH="$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$GITHUB_PR_NUMBER/comments"
-            MESSAGE_BODY=":robot:\n\nThe app image was pushed to registry! :rocket:\n\nBuilt with commit [$CIRCLE_SHA1](http://gooogle.com) :package:\n\nPull this image: ```docker.sieve.com.br/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:$CIRCLE_SHA1```"
+            MESSAGE_BODY=":robot:\n\nThe app image was pushed to registry! :rocket:\n\nBuilt with commit [$CIRCLE_SHA1](http://gooogle.com) :package:\n\nPull this image: **docker.sieve.com.br/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:$CIRCLE_SHA1**"
             curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
             -H "Authorization: token $B2WADS_GITHUB_API_TOKEN" \
             -X POST "https://api.github.com/repos/${GITHUB_PR_PAGE_PATH}"
