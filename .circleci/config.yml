@@ -43,6 +43,7 @@ jobs:
 
   build-and-push:
     executor: docker/machine
+    
     steps:
       - checkout
       - docker/check:
@@ -52,15 +53,17 @@ jobs:
       - docker/build:
           registry: docker.sieve.com.br
           image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+          tag: ${CIRCLE_SHA1:0:7}
       - docker/push:
           registry: docker.sieve.com.br
           image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+          tag: ${CIRCLE_SHA1:0:7}
       - run:
           name: Comment in PR the build status
           command: |
             GITHUB_PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | sed 's/.*\/pull\///g')
             GITHUB_PR_PAGE_PATH="$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$GITHUB_PR_NUMBER/comments"
-            IMAGE_TAG="${CIRCLE_SHA1:0:5}"
+            IMAGE_TAG="${CIRCLE_SHA1:0:7}"
             MESSAGE_BODY=":robot:\n\nThe app image was pushed to registry! :rocket:\n\nBuilt with commit [$IMAGE_TAG](http://gooogle.com) :package:\n\nPull this image: **docker.sieve.com.br/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:$IMAGE_TAG**"
             curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
             -H "Authorization: token $B2WADS_GITHUB_API_TOKEN" \
