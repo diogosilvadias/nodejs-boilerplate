@@ -66,11 +66,11 @@ jobs:
             GITHUB_COMMIT_PAGE_PATH=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1
             APP_IMAGE_TAG="staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')"
             APP_IMAGE=$B2WADS_DOCKER_REGISTRY/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
-            MESSAGE_BODY=":robot: The docker image was pushed to registry!\n\n \
+            MESSAGE_BODY=":robot: A staging docker image of this app was pushed to registry!\n\n \
               :package: Built with commit [${CIRCLE_SHA1:0:7}](https://github.com/$GITHUB_COMMIT_PAGE_PATH) \n\n \
-              :rocket: Pull this image in: \n - **$APP_IMAGE:$APP_IMAGE_TAG** \n - **$APP_IMAGE:latest**"
+              :rocket: Pull this image in **$APP_IMAGE:$APP_IMAGE_TAG**"
             curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
-            -H "Authorization: token $B2WADS_GITHUB_API_TOKEN" \
+            -H "Authorization: token $GITHUB_API_TOKEN" \
             -X POST "https://api.github.com/repos/${GITHUB_PR_PAGE_PATH}"
 
   build-and-push:
@@ -106,7 +106,7 @@ jobs:
             APP_IMAGE=$B2WADS_DOCKER_REGISTRY/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
             MESSAGE_BODY=":robot: The docker image was pushed to registry!\n\n \
               :package: Built with commit [$APP_IMAGE_TAG](https://github.com/$GITHUB_COMMIT_PAGE_PATH) \n\n \
-              :rocket: Pull this image in **$APP_IMAGE:$APP_IMAGE_TAG**"
+              :rocket: Pull this image in: \n - **$APP_IMAGE:$APP_IMAGE_TAG** \n - **$APP_IMAGE:latest**"
             curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
             -H "Authorization: token $GITHUB_API_TOKEN" \
             -X POST "https://api.github.com/repos/${GITHUB_PR_PAGE_PATH}"
