@@ -106,9 +106,9 @@ jobs:
             APP_IMAGE=$B2WADS_DOCKER_REGISTRY/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
             MESSAGE_BODY=":robot: The docker image was pushed to registry!\n\n \
               :package: Built with commit [$APP_IMAGE_TAG](https://github.com/$GITHUB_COMMIT_PAGE_PATH) \n\n \
-              :rocket: Pull this image in: \n - **$APP_IMAGE:$APP_IMAGE_TAG** \n - **$APP_IMAGE:latest**"
+              :rocket: Pull this image in **$APP_IMAGE:$APP_IMAGE_TAG**"
             curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
-            -H "Authorization: token $B2WADS_GITHUB_API_TOKEN" \
+            -H "Authorization: token $GITHUB_API_TOKEN" \
             -X POST "https://api.github.com/repos/${GITHUB_PR_PAGE_PATH}"
 
 # O `context:` abaixo deve ser usado se você precisa
@@ -121,7 +121,7 @@ workflows:
     jobs:
       - node10x:
           context: docker-registry-auth
-      - build-and-push-staging:
+      - build-and-push-staging: &build-and-push-workflow-template
           context: docker-registry-auth
           requires:
             - node10x
@@ -129,9 +129,7 @@ workflows:
             branches:
               ignore: master
       - build-and-push:
-          context: docker-registry-auth
-          requires:
-            - node10x
+          <<: *build-and-push-workflow-template
           filters:
             branches:
               only: master
