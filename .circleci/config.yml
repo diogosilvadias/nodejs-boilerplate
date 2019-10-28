@@ -43,7 +43,6 @@ jobs:
 
   build-and-push:
     executor: docker/machine
-    
     steps:
       - checkout
       - docker/check:
@@ -93,6 +92,8 @@ workflows:
       - node10x:
           context: docker-registry-auth
       - build-and-push:
+          requires:
+            - node10x
           context: docker-registry-auth
 
   optional-checks:
