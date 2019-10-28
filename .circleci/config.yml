@@ -51,18 +51,22 @@ jobs:
           docker-username: B2WADS_DOCKER_REGISTRY_USERNAME
           docker-password: B2WADS_DOCKER_REGISTRY_PASSWORD
       - docker/build:
+          step-name: Build tag
           registry: $B2WADS_DOCKER_REGISTRY
           image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
           tag: ${CIRCLE_SHA1:0:7}
       - docker/build:
+          step-name: Build latest
           registry: $B2WADS_DOCKER_REGISTRY
           image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
           tag: latest
       - docker/push:
+          step-name: Push tag
           registry: $B2WADS_DOCKER_REGISTRY
           image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
           tag: ${CIRCLE_SHA1:0:7}
       - docker/push:
+          step-name: Push latest
           registry: $B2WADS_DOCKER_REGISTRY
           image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
           tag: latest
@@ -71,12 +75,12 @@ jobs:
           command: |
             GITHUB_PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | sed 's/.*\/pull\///g')
             GITHUB_PR_PAGE_PATH=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$GITHUB_PR_NUMBER/comments
-            GITHUB_COMMIT_PAGE_PATH=$GITHUB_PR_PAGE_PATH/$CIRCLE_PROJECT_REPONAME/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1
+            GITHUB_COMMIT_PAGE_PATH=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1
             APP_IMAGE_TAG="${CIRCLE_SHA1:0:7}"
             APP_IMAGE=$B2WADS_DOCKER_REGISTRY/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
-            MESSAGE_BODY=":robot: The app image was pushed to registry!\n\n \
+            MESSAGE_BODY=":robot: The docker image was pushed to registry!\n\n \
               :package: Built with commit [$APP_IMAGE_TAG](https://github.com/$GITHUB_COMMIT_PAGE_PATH) \n\n \
-              :rocket: Pull this image: \n - **$APP_IMAGE:$APP_IMAGE_TAG** \n - **$APP_IMAGE:latest**"
+              :rocket: Pull this image in: \n - **$APP_IMAGE:$APP_IMAGE_TAG** \n - **$APP_IMAGE:latest**"
             curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
             -H "Authorization: token $B2WADS_GITHUB_API_TOKEN" \
             -X POST "https://api.github.com/repos/${GITHUB_PR_PAGE_PATH}"
