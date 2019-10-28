@@ -47,26 +47,36 @@ jobs:
     steps:
       - checkout
       - docker/check:
-          registry: docker.sieve.com.br
+          registry: $B2WADS_DOCKER_REGISTRY
           docker-username: B2WADS_DOCKER_REGISTRY_USERNAME
           docker-password: B2WADS_DOCKER_REGISTRY_PASSWORD
       - docker/build:
-          registry: docker.sieve.com.br
+          registry: $B2WADS_DOCKER_REGISTRY
+          image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+          tag: ${CIRCLE_SHA1:0:7}
+      - docker/build:
+          registry: $B2WADS_DOCKER_REGISTRY
+          image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+          tag: latest
+      - docker/push:
+          registry: $B2WADS_DOCKER_REGISTRY
           image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
           tag: ${CIRCLE_SHA1:0:7}
       - docker/push:
-          registry: docker.sieve.com.br
+          registry: $B2WADS_DOCKER_REGISTRY
           image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
-          tag: ${CIRCLE_SHA1:0:7}
+          tag: latest
       - run:
           name: Comment in PR the build status
           command: |
             GITHUB_PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | sed 's/.*\/pull\///g')
             GITHUB_PR_PAGE_PATH="$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$GITHUB_PR_NUMBER/comments"
-            IMAGE_TAG="${CIRCLE_SHA1:0:7}"
+            GITHUB_COMMIT_PAGE_PATH=$GITHUB_PR_PAGE_PATH/$CIRCLE_PROJECT_REPONAME/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1
+            APP_IMAGE_TAG="${CIRCLE_SHA1:0:7}"
+            APP_IMAGE="$B2WADS_DOCKER_REGISTRY/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
             MESSAGE_BODY=":robot: The app image was pushed to registry!\n\n \
-              :package: Built with commit [$IMAGE_TAG](https://api.github.com/repos/${GITHUB_PR_PAGE_PATH}/commits/$CIRCLE_SHA1) \n\n \
-              :rocket: Pull this image: **docker.sieve.com.br/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME:$IMAGE_TAG**"
+              :package: Built with commit [$APP_IMAGE_TAG](https://github.com/$GITHUB_COMMIT_PAGE_PATH) \n\n \
+              :rocket: Pull this image: \n - **$APP_IMAGE:$IMAGE_TAG**" \n - **$APP_IMAGE:latest**
             curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
             -H "Authorization: token $B2WADS_GITHUB_API_TOKEN" \
             -X POST "https://api.github.com/repos/${GITHUB_PR_PAGE_PATH}"
