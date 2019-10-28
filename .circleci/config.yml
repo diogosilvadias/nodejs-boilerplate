@@ -51,18 +51,18 @@ jobs:
           docker-username: B2WADS_DOCKER_REGISTRY_USERNAME
           docker-password: B2WADS_DOCKER_REGISTRY_PASSWORD
       - docker/build: &build-and-push-template
-          step-name: "Building ${CIRCLE_SHA1:0:7}"
+          step-name: Building tag
           registry: $B2WADS_DOCKER_REGISTRY
           image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
           tag: ${CIRCLE_SHA1:0:7}
-      - docker/build:
-          <<: *build-and-push-template
-          step-name: Build latest
-          tag: latest
       - docker/push:
           <<: *build-and-push-template
-          step-name: "Pushing ${CIRCLE_SHA1:0:7}"
+          step-name: "Pushing tag"
           tag: ${CIRCLE_SHA1:0:7}
+      - docker/build:
+          <<: *build-and-push-template
+          step-name: Building latest
+          tag: latest
       - docker/push:
           <<: *build-and-push-template
           step-name: Pushing latest
