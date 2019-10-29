@@ -26,14 +26,14 @@ commands:
 jobs:
   build:
     parameters:
-      image:
-        default: node:lts
-        description: Nome da imagem principal onde rodará o build
-        type: string
       coverage:
         default: false
         description: Indica se o relatório de cobertura será gerado e enviado ao Codecov
         type: boolean
+      image:
+        default: node:lts
+        description: Nome da imagem principal onde rodará o build
+        type: string
     docker:
       - image: <<parameters.image>>
         #auth:
@@ -63,9 +63,9 @@ workflows:
   required-checks:
     jobs:
       - build:
-          image: node:12.13.0
           context: docker-registry-auth
           coverage: true
+          image: node:12.13.0
           name: node-12_13_0
   optional-checks:
     jobs:
@@ -74,4 +74,5 @@ workflows:
           name: node-lts
       - build:
           context: docker-registry-auth
+          image: node:latest
           name: node-latest
