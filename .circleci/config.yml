@@ -7,9 +7,9 @@ commands:
       - run: "npm t && npm run test:coverage-report"
 
 jobs:
-  node12x: &template
+  node-12.13.0: &template
     docker:
-      - image: circleci/node:12
+      - image: node:12.13.0
         #auth:
           #username: $B2WADS_DOCKER_REGISTRY_USERNAME
           #password: $B2WADS_DOCKER_REGISTRY_PASSWORD
@@ -29,15 +29,30 @@ jobs:
       - run:
           when: on_success
           command: bash <(curl -s https://codecov.io/bash)
-  node13x:
+
+  node-lts:
       <<: *template
       docker:
-        - image: circleci/node:13
+        - image: node:lts
+          # auth:
+          #   username: $B2WADS_DOCKER_REGISTRY_USERNAME
+          #   password: $B2WADS_DOCKER_REGISTRY_PASSWORD
+        # - image: mongo:3.6
+        # - image: elasticsearch:5
+        # - image: rabbitmq:3.6-alpine
+        # - image: redis:5
+
+  node-latest:
+      <<: *template
+      docker:
+        - image: node:latest
+          # auth:
+            #   username: $B2WADS_DOCKER_REGISTRY_USERNAME
+            #   password: $B2WADS_DOCKER_REGISTRY_PASSWORD
         #- image: mongo:3.6
         #- image: elasticsearch:5
         #- image: rabbitmq:3.6-alpine
         #- image: redis:5
-
 
 # O `context:` abaixo deve ser usado se você precisa
 # de uma imagem privada. Nesse context devem estar cadastradas as envs:
@@ -47,9 +62,11 @@ workflows:
   version: 2
   required-checks:
     jobs:
-      - node12x:
+      - node-12.13.0:
           context: docker-registry-auth
   optional-checks:
     jobs:
-      - node13x:
+      - node-lts:
+          context: docker-registry-auth
+      - node-latest:
           context: docker-registry-auth
