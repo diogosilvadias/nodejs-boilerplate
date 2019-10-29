@@ -63,16 +63,15 @@ workflows:
   required-checks:
     jobs:
       - build:
-          name: node-12_13_0
-          context: docker-registry-auth
           image: node:12.13.0
+          context: docker-registry-auth
+          coverage: true
+          name: node-12_13_0
   optional-checks:
     jobs:
       - build:
+          context: docker-registry-auth
           name: node-lts
-          context: docker-registry-auth
-          coverage: false
       - build:
-          name: node-latest
           context: docker-registry-auth
-          coverage: false
+          name: node-latest
