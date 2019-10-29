@@ -16,7 +16,7 @@ commands:
   install-deps:
     description: Instala dependências do projeto
     steps:
-      - run: npm install 
+      - run: npm install
   upload-coverage:
     description: Faz o envio do relatório de cobertura de testes para o Codecov
     steps:
@@ -27,7 +27,7 @@ jobs:
   build:
     parameters:
       coverage:
-        default: false
+        default: true
         description: Indica se o relatório de cobertura será gerado e enviado ao Codecov
         type: boolean
       image:
@@ -50,7 +50,7 @@ jobs:
       - all-tests
       - when:
           condition: <<parameters.coverage>>
-          steps: 
+          steps:
             - coverage-report
             - upload-coverage
 
@@ -64,15 +64,16 @@ workflows:
     jobs:
       - build:
           context: docker-registry-auth
-          coverage: true
           image: node:12.13.0
           name: node-12_13_0
   optional-checks:
     jobs:
       - build:
           context: docker-registry-auth
+          coverage: false
           name: node-lts
       - build:
           context: docker-registry-auth
+          coverage: false
           image: node:latest
           name: node-latest
