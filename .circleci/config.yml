@@ -73,16 +73,15 @@ jobs:
       - run:
           name: Comment in PR the staging build status
           command: |
+            GITHUB_REPO_NAME=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
             GITHUB_PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | sed 's/.*\/pull\///g')
-            GITHUB_PR_PAGE_PATH=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$GITHUB_PR_NUMBER/comments
-            GITHUB_COMMIT_PAGE_PATH=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1
             APP_IMAGE=<< parameters.registry >>/<< parameters.image >>:<< parameters.image-tag >>
-            MESSAGE_BODY=":robot: A staging docker image of this app was pushed to registry!\n\n \
-              :package: Built with commit [${CIRCLE_SHA1:0:7}](https://github.com/$GITHUB_COMMIT_PAGE_PATH) \n\n \
-              :rocket: Pull this image in **$APP_IMAGE:<< parameters.image-tag >>**"
+            MESSAGE_BODY=":robot: A staging docker image of this app was pushed to registry!\n\n :package: Built with commit \
+              [${CIRCLE_SHA1:0:7}](https://github.com/$GITHUB_REPO_NAME/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1) \
+              \n\n \ :rocket: Pull this image in **$APP_IMAGE**"
             curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
             -H "Authorization: token $GITHUB_API_TOKEN" \
-            -X POST "https://api.github.com/repos/${GITHUB_PR_PAGE_PATH}"
+            -X POST "https://api.github.com/repos/$GITHUB_REPO_NAME/issues/$GITHUB_PR_NUMBER/comments"
 
   build-and-push:
     parameters:
