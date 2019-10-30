@@ -103,10 +103,8 @@ jobs:
           command: |
             GITHUB_REPO_NAME=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
             GITHUB_PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | sed 's/.*\/pull\///g')
-            MESSAGE_BODY=":robot: A docker image of this app was pushed to registry!\n\n :package: Built with commit \
-              [${CIRCLE_SHA1:0:7}](https://github.com/$GITHUB_REPO_NAME/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1) \
-              \n\n \ :rocket: Pull this image in **<< parameters.registry >>/<< parameters.image >>:<< parameters.image-tag >>**"
-            curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
+            MESSAGE_BODY=":robot: A docker image of this app was pushed to registry!\n\n :package: Built with commit [${CIRCLE_SHA1:0:7}](https://github.com/$GITHUB_REPO_NAME/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1)\n\n :rocket: Pull this image in **<< parameters.registry >>/<< parameters.image >>:<< parameters.image-tag >>**"
+            curl -v -d  "{\"body\":\"${MESSAGE_BODY}\"}" -H "Content-Type: application/json" \
             -H "Authorization: token $GITHUB_API_TOKEN" \
             -X POST "https://api.github.com/repos/$GITHUB_REPO_NAME/issues/$GITHUB_PR_NUMBER/comments"
           # command: |
