@@ -100,21 +100,27 @@ jobs:
     steps:
       - run:
           name:  Notify build status
-          command: |
-            GITHUB_REPO_NAME=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
-            GITHUB_PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | sed 's/.*\/pull\///g')
-            MESSAGE_BODY=":robot: A docker image of this app was pushed to registry!\n\n :package: Built with commit [${CIRCLE_SHA1:0:7}](https://github.com/$GITHUB_REPO_NAME/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1)\n\n :rocket: Pull this image in **<< parameters.registry >>/<< parameters.image >>:<< parameters.image-tag >>**"
-            curl -v -d  "{\"body\":\"${MESSAGE_BODY}\"}" -H "Content-Type: application/json" \
-            -H "Authorization: token $GITHUB_API_TOKEN" \
-            -X POST "https://api.github.com/repos/$GITHUB_REPO_NAME/issues/$GITHUB_PR_NUMBER/comments"
           # command: |
+          #   GITHUB_REPO_NAME=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
           #   GITHUB_PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | sed 's/.*\/pull\///g')
-          #   MESSAGE_BODY=":robot: A docker image of this app was pushed to registry!\n\n :package: Built with commit \
-          #     [${CIRCLE_SHA1:0:7}](<< parameters.github-address >>/<< parameters.github-repo-path >>/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1) \
-          #     \n\n \ :rocket: Pull this image in **<< parameters.registry >>/<< parameters.image >>:<< parameters.image-tag >>**"
-          #   curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
+          #   MESSAGE_BODY=":robot: A docker image of this app was pushed to registry!\n\n \ 
+          #     :package: Built with commit [${CIRCLE_SHA1:0:7}](https://github.com/$GITHUB_REPO_NAME/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1)\n\n \
+          #     :rocket: Pull this image in **<< parameters.registry >>/<< parameters.image >>:<< parameters.image-tag >>**"
+          #   curl -v -d  "{\"body\":\"${MESSAGE_BODY}\"}" -H "Content-Type: application/json" \
           #   -H "Authorization: token $GITHUB_API_TOKEN" \
-          #   -X POST "<< parameters.github-api-address >>/repos/<< parameters.github-repo-path >>/issues/$GITHUB_PR_NUMBER/comments"
+          #   POST "https://api.github.com/repos/$GITHUB_REPO_NAME/issues/$GITHUB_PR_NUMBER/comments"
+          command: |
+            GITHUB_PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | sed 's/.*\/pull\///g')
+            GITHUB_COMMIT_PAGE_URL=<< parameters.github-address >>/<< parameters.github-repo-path >>/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1
+            COMMIT_HASH=${CIRCLE_SHA1:0:7}
+            DOCKER_IMAGE=<< parameters.registry >>/<< parameters.image >>:<< parameters.image-tag >>
+            MESSAGE_BODY=":robot: A docker image of this app was pushed to registry!\n\n \
+              :package: Built with commit [$COMMIT_HASH]($GITHUB_COMMIT_PAGE_URL) \
+              \n\n \ :rocket: Pull this image in **$DOCKER_IMAGE**"
+            GITHUB_API_URL=<< parameters.github-api-address >>/repos/<< parameters.github-repo-path >>/issues/$GITHUB_PR_NUMBER/comments
+
+            curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
+            -H "Authorization: token $GITHUB_API_TOKEN" POST $GITHUB_API_URL
 
   # build-and-push:
   #   parameters:
@@ -179,7 +185,7 @@ workflows:
               ignore: master
       - notify-build-status:
           <<: *build-staging
-          name: notify-staging
+          name: notify-build-staging
           requires:
             - build-staging
 
@@ -192,7 +198,7 @@ workflows:
               only: master
       - notify-build-status:
           <<: *build-tag
-          name: notify-tag
+          name: notify-build-tag
           requires:
             - build-tag
 
@@ -205,7 +211,7 @@ workflows:
               only: master
       - notify-build-status:
           <<: *build-latest
-          name: notify-latest
+          name: notify-build-latest
           requires:
             - build-latest
 
