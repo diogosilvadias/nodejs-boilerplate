@@ -45,15 +45,11 @@ jobs:
     parameters:
       registry:
         type: string
-      staging:
-        type: boolean
-        default: true
       image:
         type: string
         default: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
       image-tag:
         type: string
-        default: staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')
     executor: docker/machine
     steps:
       - checkout
@@ -70,59 +66,89 @@ jobs:
           <<: *build-and-push-staging-template
           step-name: Pushing staging
           tag: << parameters.image-tag >>
-      - run:
-          name: Comment in PR the staging build status
-          command: |
-            GITHUB_REPO_NAME=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
-            GITHUB_PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | sed 's/.*\/pull\///g')
-            APP_IMAGE=<< parameters.registry >>/<< parameters.image >>:<< parameters.image-tag >>
-            MESSAGE_BODY=":robot: A staging docker image of this app was pushed to registry!\n\n :package: Built with commit \
-              [${CIRCLE_SHA1:0:7}](https://github.com/$GITHUB_REPO_NAME/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1) \
-              \n\n \ :rocket: Pull this image in **$APP_IMAGE**"
-            curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
-            -H "Authorization: token $GITHUB_API_TOKEN" \
-            -X POST "https://api.github.com/repos/$GITHUB_REPO_NAME/issues/$GITHUB_PR_NUMBER/comments"
-
-  build-and-push:
+      # - staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')run:
+      #     name:  Notify build status
+      #     command: |
+      #       GITHUB_REPO_NAME=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+      #       GITHUB_PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | sed 's/.*\/pull\///g')
+      #       MESSAGE_BODY=":robot: A docker image of this app was pushed to registry!\n\n :package: Built with commit \
+      #         [${CIRCLE_SHA1:0:7}](https://github.com/$GITHUB_REPO_NAME/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1) \
+      #         \n\n \ :rocket: Pull this image in **<< parameters.registry >>/<< parameters.image >>:<< parameters.image-tag >>**"
+      #       curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
+      #       -H "Authorization: token $GITHUB_API_TOKEN" \
+      #       -X POST "https://api.github.com/repos/$GITHUB_REPO_NAME/issues/$GITHUB_PR_NUMBER/comments"
+  
+  notify-build-status:
     parameters:
       registry:
         type: string
+      image:
+        type: string
+        default: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+      image-tag:
+        type: string
+      github-repo-path:
+        type: string
+        default: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+      github-api-address:
+        type: string
+        default: https://api.github.com
+      github-address:
+        type: string
+        default: https://github.com
     executor: docker/machine
     steps:
-      - checkout
-      - docker/check:
-          <<: *docker-check-template
-      - docker/build: &build-and-push-template
-          step-name: Building tag
-          registry: << parameters.registry >>
-          image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
-          tag: ${CIRCLE_SHA1:0:7}
-      - docker/push:
-          <<: *build-and-push-template
-          step-name: Pushing tag
-          tag: ${CIRCLE_SHA1:0:7}
-      - docker/build:
-          <<: *build-and-push-template
-          step-name: Building latest
-          tag: latest
-      - docker/push:
-          <<: *build-and-push-template
-          step-name: Pushing latest
-          tag: latest
       - run:
-          name: Comment in PR the build status
+          name:  Notify build status
           command: |
             GITHUB_PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | sed 's/.*\/pull\///g')
-            GITHUB_PR_PAGE_PATH=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$GITHUB_PR_NUMBER/comments
-            GITHUB_COMMIT_PAGE_PATH=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1
-            APP_IMAGE_TAG="${CIRCLE_SHA1:0:7}"
-            APP_IMAGE="<< parameters.registry >>/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
-            MESSAGE_BODY=":robot: The docker image was pushed to registry!\n\n \
-              :package: Built with commit [$APP_IMAGE_TAG](https://github.com/$GITHUB_COMMIT_PAGE_PATH) \n\n \
-              :rocket: Pull this image in: \n - **$APP_IMAGE:$APP_IMAGE_TAG** \n - **$APP_IMAGE:latest**"
+            MESSAGE_BODY=":robot: A docker image of this app was pushed to registry!\n\n :package: Built with commit \
+              [${CIRCLE_SHA1:0:7}](<< parameters.github-address >>/<< parameters.github-repo-path >>/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1) \
+              \n\n \ :rocket: Pull this image in **<< parameters.registry >>/<< parameters.image >>:<< parameters.image-tag >>**"
             curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
             -H "Authorization: token $GITHUB_API_TOKEN" \
-            -X POST "https://api.github.com/repos/${GITHUB_PR_PAGE_PATH}"
+            -X POST "<< parameters.github-api-address >>/repos/<< parameters.github-repo-path >>/issues/$GITHUB_PR_NUMBER/comments"
+
+  # build-and-push:
+  #   parameters:
+  #     registry:
+  #       type: string
+  #   executor: docker/machine
+  #   steps:
+  #     - checkout
+  #     - docker/check:
+  #         <<: *docker-check-template
+  #     - docker/build: &build-and-push-template
+  #         step-name: Building tag
+  #         registry: << parameters.registry >>
+  #         image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+  #         tag: ${CIRCLE_SHA1:0:7}
+  #     - docker/push:
+  #         <<: *build-and-push-template
+  #         step-name: Pushing tag
+  #         tag: ${CIRCLE_SHA1:0:7}
+  #     - docker/build:
+  #         <<: *build-and-push-template
+  #         step-name: Building latest
+  #         tag: latest
+  #     - docker/push:
+  #         <<: *build-and-push-template
+  #         step-name: Pushing latest
+  #         tag: latest
+  #     - run:
+  #         name: Comment in PR the build status
+  #         command: |
+  #           GITHUB_PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | sed 's/.*\/pull\///g')
+  #           GITHUB_PR_PAGE_PATH=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$GITHUB_PR_NUMBER/comments
+  #           GITHUB_COMMIT_PAGE_PATH=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1
+  #           APP_IMAGE_TAG="${CIRCLE_SHA1:0:7}"
+  #           APP_IMAGE="<< parameters.registry >>/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
+  #           MESSAGE_BODY=":robot: The docker image was pushed to registry!\n\n \
+  #             :package: Built with commit [$APP_IMAGE_TAG](https://github.com/$GITHUB_COMMIT_PAGE_PATH) \n\n \
+  #             :rocket: Pull this image in: \n - **$APP_IMAGE:$APP_IMAGE_TAG** \n - **$APP_IMAGE:latest**"
+  #           curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
+  #           -H "Authorization: token $GITHUB_API_TOKEN" \
+  #           -X POST "https://api.github.com/repos/${GITHUB_PR_PAGE_PATH}"
 
 # O `context:` abaixo deve ser usado se você precisa
 # de uma imagem privada. Nesse context devem estar cadastradas as envs:
@@ -134,20 +160,47 @@ workflows:
     jobs:
       - node10x:
           context: docker-registry-auth
-      - build: &build-and-push-workflow-template
+      - build: &build-staging
+          name: build-staging
           context: docker-registry-auth
-          staging: true          
           registry: $B2WADS_DOCKER_REGISTRY
+          image-tag: staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')
           requires:
             - node10x
           filters:
             branches:
               ignore: master
-      # - build-and-push:
-      #     <<: *build-and-push-workflow-template
-      #     filters:
-      #       branches:
-      #         only: master
+      - notify-build-status:
+          <<: *build-staging
+          name: notify-staging
+          requires:
+            - build-staging
+
+      - build: &build-tag
+          name: build-tag
+          registry: $B2WADS_DOCKER_REGISTRY
+          image-tag: ${CIRCLE_SHA1:0:7}
+          filters:
+            branches:
+              only: master
+      - notify-build-status:
+          <<: *build-tag
+          name: notify-tag
+          requires:
+            - build-tag
+
+      - build: &build-latest
+          name: build-tag
+          registry: $B2WADS_DOCKER_REGISTRY
+          image-tag: latest
+          filters:
+            branches:
+              only: master
+      - notify-build-status:
+          <<: *build-latest
+          name: notify-latest
+          requires:
+            - build-latest
 
   optional-checks:
     jobs:
