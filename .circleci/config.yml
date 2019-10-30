@@ -41,10 +41,19 @@ jobs:
         #- image: rabbitmq:3.6-alpine
         #- image: redis:5
 
-  build-and-push-staging:
+  build:
     parameters:
       registry:
         type: string
+      staging:
+        type: boolean
+        default: true
+      image:
+        type: string
+        default: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+      image-tag:
+        type: string
+        default: staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')
     executor: docker/machine
     steps:
       - checkout
@@ -55,23 +64,22 @@ jobs:
       - docker/build: &build-and-push-staging-template
           step-name: Building staging
           registry: << parameters.registry >>
-          image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
-          tag: staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')
+          image: << parameters.image >>
+          tag: << parameters.image-tag >>
       - docker/push:
           <<: *build-and-push-staging-template
           step-name: Pushing staging
-          tag: staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')
+          tag: << parameters.image-tag >>
       - run:
           name: Comment in PR the staging build status
           command: |
             GITHUB_PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | sed 's/.*\/pull\///g')
             GITHUB_PR_PAGE_PATH=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$GITHUB_PR_NUMBER/comments
             GITHUB_COMMIT_PAGE_PATH=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1
-            APP_IMAGE_TAG="staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')"
-            APP_IMAGE=<< parameters.registry >>/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+            APP_IMAGE=<< parameters.registry >>/<< parameters.image >>:<< parameters.image-tag >>
             MESSAGE_BODY=":robot: A staging docker image of this app was pushed to registry!\n\n \
               :package: Built with commit [${CIRCLE_SHA1:0:7}](https://github.com/$GITHUB_COMMIT_PAGE_PATH) \n\n \
-              :rocket: Pull this image in **$APP_IMAGE:$APP_IMAGE_TAG**"
+              :rocket: Pull this image in **$APP_IMAGE:<< parameters.image-tag >>**"
             curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
             -H "Authorization: token $GITHUB_API_TOKEN" \
             -X POST "https://api.github.com/repos/${GITHUB_PR_PAGE_PATH}"
@@ -127,8 +135,9 @@ workflows:
     jobs:
       - node10x:
           context: docker-registry-auth
-      - build-and-push-staging: &build-and-push-workflow-template
+      - build: &build-and-push-workflow-template
           context: docker-registry-auth
+          staging: true          
           registry: $B2WADS_DOCKER_REGISTRY
           requires:
             - node10x
