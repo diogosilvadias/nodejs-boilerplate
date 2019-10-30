@@ -128,8 +128,6 @@ workflows:
       - node10x:
           context: docker-registry-auth
       - build-and-push-staging: &build-and-push-workflow-template
-          parameters:
-            registry: $B2WADS_DOCKER_REGISTRY
           context: docker-registry-auth
           registry: $B2WADS_DOCKER_REGISTRY
           requires:
