@@ -190,7 +190,7 @@ workflows:
             - build-tag
 
       - build: &build-latest
-          name: build-tag
+          name: build-latest
           registry: $B2WADS_DOCKER_REGISTRY
           image-tag: latest
           filters:
