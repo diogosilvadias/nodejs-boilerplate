@@ -77,6 +77,9 @@ jobs:
             -X POST "https://api.github.com/repos/${GITHUB_PR_PAGE_PATH}"
 
   build-and-push:
+    parameters:
+      registry:
+        type: string
     executor: docker/machine
     steps:
       - checkout
@@ -84,7 +87,7 @@ jobs:
           <<: *docker-check-template
       - docker/build: &build-and-push-template
           step-name: Building tag
-          registry: $B2WADS_DOCKER_REGISTRY
+          registry: << parameters.registry >>
           image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
           tag: ${CIRCLE_SHA1:0:7}
       - docker/push:
@@ -106,7 +109,7 @@ jobs:
             GITHUB_PR_PAGE_PATH=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$GITHUB_PR_NUMBER/comments
             GITHUB_COMMIT_PAGE_PATH=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1
             APP_IMAGE_TAG="${CIRCLE_SHA1:0:7}"
-            APP_IMAGE=$B2WADS_DOCKER_REGISTRY/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+            APP_IMAGE="<< parameters.registry >>/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME"
             MESSAGE_BODY=":robot: The docker image was pushed to registry!\n\n \
               :package: Built with commit [$APP_IMAGE_TAG](https://github.com/$GITHUB_COMMIT_PAGE_PATH) \n\n \
               :rocket: Pull this image in: \n - **$APP_IMAGE:$APP_IMAGE_TAG** \n - **$APP_IMAGE:latest**"
@@ -125,6 +128,8 @@ workflows:
       - node10x:
           context: docker-registry-auth
       - build-and-push-staging: &build-and-push-workflow-template
+          parameters:
+            registry: $B2WADS_DOCKER_REGISTRY
           context: docker-registry-auth
           registry: $B2WADS_DOCKER_REGISTRY
           requires:
