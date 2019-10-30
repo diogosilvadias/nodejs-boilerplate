@@ -42,16 +42,19 @@ jobs:
         #- image: redis:5
 
   build-and-push-staging:
+    parameters:
+      registry:
+        type: string
     executor: docker/machine
     steps:
       - checkout
       - docker/check: &docker-check-template
-          registry: $B2WADS_DOCKER_REGISTRY
+          registry: << parameters.registry >>
           docker-username: B2WADS_DOCKER_REGISTRY_USERNAME
           docker-password: B2WADS_DOCKER_REGISTRY_PASSWORD
       - docker/build: &build-and-push-staging-template
           step-name: Building staging
-          registry: $B2WADS_DOCKER_REGISTRY
+          registry: << parameters.registry >>
           image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
           tag: staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')
       - docker/push:
@@ -65,7 +68,7 @@ jobs:
             GITHUB_PR_PAGE_PATH=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$GITHUB_PR_NUMBER/comments
             GITHUB_COMMIT_PAGE_PATH=$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1
             APP_IMAGE_TAG="staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')"
-            APP_IMAGE=$B2WADS_DOCKER_REGISTRY/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+            APP_IMAGE=<< parameters.registry >>/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
             MESSAGE_BODY=":robot: A staging docker image of this app was pushed to registry!\n\n \
               :package: Built with commit [${CIRCLE_SHA1:0:7}](https://github.com/$GITHUB_COMMIT_PAGE_PATH) \n\n \
               :rocket: Pull this image in **$APP_IMAGE:$APP_IMAGE_TAG**"
@@ -123,16 +126,17 @@ workflows:
           context: docker-registry-auth
       - build-and-push-staging: &build-and-push-workflow-template
           context: docker-registry-auth
+          registry: $B2WADS_DOCKER_REGISTRY
           requires:
             - node10x
           filters:
             branches:
               ignore: master
-      - build-and-push:
-          <<: *build-and-push-workflow-template
-          filters:
-            branches:
-              only: master
+      # - build-and-push:
+      #     <<: *build-and-push-workflow-template
+      #     filters:
+      #       branches:
+      #         only: master
 
   optional-checks:
     jobs:
