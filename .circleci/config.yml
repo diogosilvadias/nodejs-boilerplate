@@ -136,6 +136,7 @@ workflows:
           name: notify-build-staging
           registry: $B2WADS_DOCKER_REGISTRY
           image-tag: staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')
+          github-api-token: $GITHUB_API_TOKEN
           requires:
             - build-staging
 
@@ -150,7 +151,6 @@ workflows:
           <<: *notify-build-status-template
           name: notify-build-tag
           image-tag: ${CIRCLE_SHA1:0:7}
-          github-api-token: $GITHUB_API_TOKEN
           requires:
             - build-tag
 
