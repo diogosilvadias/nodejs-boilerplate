@@ -73,6 +73,7 @@ jobs:
           tag: << parameters.image-tag >>
   
   notify-build-status:
+    description: Envia uma mensagem na página do PR com informações do build
     parameters:
       registry:
         type: string
@@ -133,6 +134,7 @@ workflows:
             branches:
               ignore: master
       - notify-build-status: &notify-build-status-template
+          context: docker-registry-auth
           name: notify-build-staging
           registry: $B2WADS_DOCKER_REGISTRY
           image-tag: staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')
