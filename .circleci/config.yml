@@ -111,7 +111,12 @@ jobs:
             response=$(curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
             -H "Authorization: token << parameters.github-api-token >>" POST -o /dev/null -s -w "%{http_code}\n" $GITHUB_API_URL)
 
-            echo "response $response, response_code $response.http_code"
+            if [ $response -eq 201 ]
+            then 
+              exit 0
+            else
+              exit 1
+            fi
 
 
 # O `context:` abaixo deve ser usado se você precisa
