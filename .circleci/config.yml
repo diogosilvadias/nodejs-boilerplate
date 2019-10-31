@@ -109,7 +109,7 @@ jobs:
 
             curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
             -H "Authorization: token << parameters.github-api-token >>" POST -o /dev/null -s -w "%{HTTP_STATUS_CODE}\n" $GITHUB_API_URL
-            ECHO "resposta de criação $HTTP_STATUS_CODE"
+            echo "resposta de criação $HTTP_STATUS_CODE"
             
 
 
