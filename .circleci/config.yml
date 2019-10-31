@@ -116,7 +116,7 @@ jobs:
             DOCKER_IMAGE=<< parameters.registry >>/<< parameters.image >>:<< parameters.image-tag >>
             MESSAGE_BODY=":robot: A docker image of this app was pushed to registry!\n\n \
               :package: Built with commit [$COMMIT_HASH]($GITHUB_COMMIT_PAGE_URL) \
-              \n\n \ :rocket: Pull this image in **$DOCKER_IMAGE**"
+              \n\n :rocket: Pull this image in **$DOCKER_IMAGE**"
             GITHUB_API_URL=<< parameters.github-api-address >>/repos/<< parameters.github-repo-path >>/issues/$GITHUB_PR_NUMBER/comments
 
             curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
