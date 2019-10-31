@@ -90,6 +90,8 @@ jobs:
       github-address:
         type: string
         default: https://github.com
+      github-api-token:
+        type: string
     executor: docker/machine
     steps:
       - run:
@@ -97,15 +99,15 @@ jobs:
           command: |
             GITHUB_PR_NUMBER=$(echo "$CIRCLE_PULL_REQUEST" | sed 's/.*\/pull\///g')
             GITHUB_COMMIT_PAGE_URL=<< parameters.github-address >>/<< parameters.github-repo-path >>/pull/$GITHUB_PR_NUMBER/commits/$CIRCLE_SHA1
+            GITHUB_API_URL=<< parameters.github-api-address >>/repos/<< parameters.github-repo-path >>/issues/$GITHUB_PR_NUMBER/comments
             COMMIT_HASH=${CIRCLE_SHA1:0:7}
             DOCKER_IMAGE=<< parameters.registry >>/<< parameters.image >>:<< parameters.image-tag >>
             MESSAGE_BODY=":robot: A docker image of this app was pushed to registry!\n\n \
               :package: Built with commit [$COMMIT_HASH]($GITHUB_COMMIT_PAGE_URL) \
               \n\n :rocket: Pull this image in **$DOCKER_IMAGE**"
-            GITHUB_API_URL=<< parameters.github-api-address >>/repos/<< parameters.github-repo-path >>/issues/$GITHUB_PR_NUMBER/comments
 
             curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
-            -H "Authorization: token $GITHUB_API_TOKEN" POST $GITHUB_API_URL
+            -H "Authorization: token << parameters.github-api-token >>" POST $GITHUB_API_URL
 
 
 # O `context:` abaixo deve ser usado se você precisa
@@ -141,13 +143,14 @@ workflows:
           <<: *build-template
           name: build-tag
           image-tag: ${CIRCLE_SHA1:0:7}
-          # filters:
-          #   branches:
-          #     only: master
+          filters:
+            branches:
+              only: master
       - notify-build-status:
           <<: *notify-build-status-template
           name: notify-build-tag
           image-tag: ${CIRCLE_SHA1:0:7}
+          github-api-token: $GITHUB_API_TOKEN
           requires:
             - build-tag
 
@@ -155,9 +158,9 @@ workflows:
           <<: *build-template
           name: build-latest
           image-tag: latest
-          # filters:
-          #   branches:
-          #     only: master
+          filters:
+            branches:
+              only: master
       - notify-build-status:
           <<: *notify-build-status-template
           name: notify-build-latest
