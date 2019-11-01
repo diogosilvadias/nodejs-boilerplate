@@ -139,7 +139,6 @@ workflows:
           registry: $B2WADS_DOCKER_REGISTRY
           image-tag: staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')
           github-api-token: $GITHUB_API_TOKEN
-          github-api-token: erro
           requires:
             - build-staging
 
