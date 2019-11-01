@@ -135,7 +135,7 @@ workflows:
             branches:
               ignore: master
       - notify-build-status: &notify-build-status-template
-          # context: docker-registry-auth
+          context: docker-registry-auth
           name: notify-build-staging
           registry: $B2WADS_DOCKER_REGISTRY
           image-tag: staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')
