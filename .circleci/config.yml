@@ -106,17 +106,12 @@ jobs:
             MESSAGE_BODY=":robot: A docker image of this app was pushed to registry!\n\n \
               :package: Built with commit [$COMMIT_HASH]($GITHUB_COMMIT_PAGE_URL) \
               \n\n :rocket: Pull this image in **$DOCKER_IMAGE**"
-            HTTP_STATUS_CODE=""
 
-            response=$(curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
-            -H "Authorization: token << parameters.github-api-token >>" POST -o /dev/null -s -w "%{http_code}\n" $GITHUB_API_URL)
-
-            if [ $response -eq 201 ]
-            then 
-              exit 0
-            else
-              exit 1
-            fi
+            # response=$(curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
+            # -H "Authorization: token << parameters.github-api-token >>" POST -o /dev/null -s -w "%{http_code}\n" $GITHUB_API_URL)
+            if [ curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
+              -H "Authorization: token << parameters.github-api-token >>" \
+              POST -o /dev/null -s -w "%{http_code}\n" $GITHUB_API_URL) != "201" ]; then echo 1; fi
 
 
 # O `context:` abaixo deve ser usado se você precisa
