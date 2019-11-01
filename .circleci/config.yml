@@ -90,7 +90,7 @@ jobs:
         default: https://api.github.com
       github-address:
         type: string
-        default: https://github.combuild
+        default: https://github.com
       github-api-token:
         type: string
     executor: docker/machine
