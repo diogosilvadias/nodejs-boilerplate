@@ -109,7 +109,7 @@ jobs:
 
             # response=$(curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
             # -H "Authorization: token << parameters.github-api-token >>" POST -o /dev/null -s -w "%{http_code}\n" $GITHUB_API_URL)
-            if [ curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
+            if [ $(curl -v -d  "{\"body\":\"$MESSAGE_BODY\"}" -H "Content-Type: application/json" \
               -H "Authorization: token << parameters.github-api-token >>" \
               POST -o /dev/null -s -w "%{http_code}\n" $GITHUB_API_URL) != "201" ]; then echo 1; fi
 
