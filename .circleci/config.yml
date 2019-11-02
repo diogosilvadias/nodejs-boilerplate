@@ -65,7 +65,7 @@ workflows:
       - build:
           context: docker-registry-auth
           image: node:12.13.0
-          name: node-12_13_0
+          name: node-12
   optional-checks:
     jobs:
       - build:
