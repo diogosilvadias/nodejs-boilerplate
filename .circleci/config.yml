@@ -30,15 +30,23 @@ jobs:
         default: true
         description: Indica se o relatório de cobertura será gerado e enviado ao Codecov
         type: boolean
+      docker-auth-username:
+        description: Username usado para autenticação no docker registry
+        default: ""
+        type: string
+      docker-auth-password:
+        description: Password usado para autenticação no docker registry
+        default: ""
+        type: string
       image:
         default: node:lts
         description: Nome da imagem principal onde rodará o build
         type: string
     docker:
       - image: <<parameters.image>>
-        #auth:
-          #username: $B2WADS_DOCKER_REGISTRY_USERNAME
-          #password: $B2WADS_DOCKER_REGISTRY_PASSWORD
+        auth:
+          username: <<parameters.docker-auth-username>>
+          password: <<parameters.docker-auth-password>>
       #- image: mongo:3.6
       #- image: elasticsearch:5
       #- image: rabbitmq:3.6-alpine
@@ -69,11 +77,9 @@ workflows:
   optional-checks:
     jobs:
       - build:
-          context: docker-registry-auth
           coverage: false
           name: node-lts
       - build:
-          context: docker-registry-auth
           coverage: false
           image: node:latest
           name: node-latest
