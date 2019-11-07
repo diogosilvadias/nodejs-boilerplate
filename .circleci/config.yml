@@ -2,57 +2,65 @@ version: 2.1
 
 commands:
   all-tests:
-    description: "Roda todos os testes do projeto (unitários e integração)"
+    description: Roda todos os testes do projeto (unitários e integração)
     steps:
-      - run: "npm t && npm run test:coverage-report"
+      - run: npm t
+  coverage-report:
+    description: Gera o relatório de coverage
+    steps:
+      - run: npm run test:coverage-report
+  format-check:
+    description: Verifica formatação do código
+    steps:
+      - run: npm run fmt:check
+  install-deps:
+    description: Instala dependências do projeto
+    steps:
+      - run: npm install
+  upload-coverage:
+    description: Faz o envio do relatório de cobertura de testes para o Codecov
+    steps:
+      - run:
+          command: bash <(curl -s https://codecov.io/bash)
 
 jobs:
-  node-12_13_0: &template
+  build:
+    parameters:
+      coverage:
+        default: true
+        description: Indica se o relatório de cobertura será gerado e enviado ao Codecov
+        type: boolean
+      docker-auth-username:
+        description: Username usado para autenticação no docker registry
+        default: ""
+        type: string
+      docker-auth-password:
+        description: Password usado para autenticação no docker registry
+        default: ""
+        type: string
+      image:
+        default: node:lts
+        description: Nome da imagem principal onde rodará o build
+        type: string
     docker:
-      - image: node:12.13.0
-        #auth:
-          #username: $B2WADS_DOCKER_REGISTRY_USERNAME
-          #password: $B2WADS_DOCKER_REGISTRY_PASSWORD
+      - image: <<parameters.image>>
+        auth:
+          username: <<parameters.docker-auth-username>>
+          password: <<parameters.docker-auth-password>>
       #- image: mongo:3.6
       #- image: elasticsearch:5
       #- image: rabbitmq:3.6-alpine
       #- image: redis:5
     steps:
       - checkout
-      - run:
-          name: Install deps
-          command: npm install
-      - run:
-          name: Format check
-          command: npm run fmt:check
+      - install-deps
+      - format-check
       - all-tests
-      - run:
-          when: on_success
-          command: bash <(curl -s https://codecov.io/bash)
-
-  node-lts:
-      <<: *template
-      docker:
-        - image: node:lts
-          # auth:
-          #   username: $B2WADS_DOCKER_REGISTRY_USERNAME
-          #   password: $B2WADS_DOCKER_REGISTRY_PASSWORD
-        # - image: mongo:3.6
-        # - image: elasticsearch:5
-        # - image: rabbitmq:3.6-alpine
-        # - image: redis:5
-
-  node-latest:
-      <<: *template
-      docker:
-        - image: node:latest
-          # auth:
-            #   username: $B2WADS_DOCKER_REGISTRY_USERNAME
-            #   password: $B2WADS_DOCKER_REGISTRY_PASSWORD
-        #- image: mongo:3.6
-        #- image: elasticsearch:5
-        #- image: rabbitmq:3.6-alpine
-        #- image: redis:5
+      - when:
+          condition: <<parameters.coverage>>
+          steps:
+            - coverage-report
+            - upload-coverage
 
 # O `context:` abaixo deve ser usado se você precisa
 # de uma imagem privada. Nesse context devem estar cadastradas as envs:
@@ -62,11 +70,16 @@ workflows:
   version: 2
   required-checks:
     jobs:
-      - node-12_13_0:
+      - build:
           context: docker-registry-auth
+          image: node:12.13.0
+          name: node-12
   optional-checks:
     jobs:
-      - node-lts:
-          context: docker-registry-auth
-      - node-latest:
-          context: docker-registry-auth
+      - build:
+          coverage: false
+          name: node-lts
+      - build:
+          coverage: false
+          image: node:latest
+          name: node-latest
