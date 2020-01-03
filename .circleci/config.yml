@@ -163,26 +163,26 @@ workflows:
       # Remova os comentário abaixo se quiser realizar build 
       # de uma imagem staging do repositório
 
-      - build-image: &build-template
-          context: docker-registry-auth
-          name: build-staging
-          registry: $B2WADS_DOCKER_REGISTRY
-          registry-username: B2WADS_DOCKER_REGISTRY_USERNAME
-          registry-password: B2WADS_DOCKER_REGISTRY_PASSWORD
-          image-tag: staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')
-          requires:
-            - node-12
-          filters:
-            branches:
-              ignore: master
-      - notify-build-status: &notify-build-status-template
-          context: docker-registry-auth
-          name: notify-build-staging
-          registry: $B2WADS_DOCKER_REGISTRY
-          image-tag: staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')
-          github-api-token: $GITHUB_API_TOKEN
-          requires:
-            - build-staging
+      # - build-image: &build-template
+      #     context: docker-registry-auth
+      #     name: build-staging
+      #     registry: $B2WADS_DOCKER_REGISTRY
+      #     registry-username: B2WADS_DOCKER_REGISTRY_USERNAME
+      #     registry-password: B2WADS_DOCKER_REGISTRY_PASSWORD
+      #     image-tag: staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')
+      #     requires:
+      #       - node-12
+      #     filters:
+      #       branches:
+      #         ignore: master
+      # - notify-build-status: &notify-build-status-template
+      #     context: docker-registry-auth
+      #     name: notify-build-staging
+      #     registry: $B2WADS_DOCKER_REGISTRY
+      #     image-tag: staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')
+      #     github-api-token: $GITHUB_API_TOKEN
+      #     requires:
+      #       - build-staging
 
       # Remova os comentário abaixo se quiser realizar build 
       # de de imagem latest e tag quando mergear para master
