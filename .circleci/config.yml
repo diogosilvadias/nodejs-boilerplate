@@ -20,11 +20,22 @@ commands:
     description: Instala dependências do projeto
     steps:
       - run: npm install
+  install-git:
+    description: Instala git
+    steps:
+      - run:
+          command: |
+            if ! [ -x "$(command -v git)" ]; then
+              apk add git
+            fi
   upload-coverage:
     description: Faz o envio do relatório de cobertura de testes para o Codecov
     steps:
       - run:
-          command: bash <(curl -s https://codecov.io/bash)
+          command: |
+            apk add bash curl
+            wget -O codecov_bash https://codecov.io/bash
+            bash codecov_bash
 
 jobs:
   build:
