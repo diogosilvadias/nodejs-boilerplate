@@ -34,7 +34,6 @@ commands:
       - run:
           command: |
             apk add bash curl
-            pwd
             wget -O codecov_bash https://codecov.io/bash
             bash codecov_bash
 
