@@ -8,14 +8,14 @@
 Task: [ABC-123](link-da-task-no-jira)
 Staging URL: [staging-url.app.io](staging-url.app.io)
 
-#### O que é
+#### Qual o problema
 
 <!--
    Escreva uma descrição a respeito das alterações que você está fazendo,
    enumerando os impactos isso tem para o projeto.
 -->
 
-#### Como funciona
+#### O que foi feito
 
 <!--
    Escreva aqui mais profundamente como funciona a implementação do que
