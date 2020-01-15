@@ -5,43 +5,79 @@ orbs:
 
 commands:
   all-tests:
-    description: "Roda todos os testes do projeto (unitários e integração)"
+    description: Roda todos os testes do projeto (unitários e integração)
     steps:
-      - run: "npm t && npm run test:coverage-report"
+      - run: npm t
+  coverage-report:
+    description: Gera o relatório de coverage
+    steps:
+      - run: npm run test:coverage-report
+  format-check:
+    description: Verifica formatação do código
+    steps:
+      - run: npm run fmt:check
+  install-deps:
+    description: Instala dependências do projeto
+    steps:
+      - run: npm install
+  install-git:
+    description: Instala git
+    steps:
+      - run:
+          command: |
+            if ! [ -x "$(command -v git)" ]; then
+              apk add git
+            fi
+  upload-coverage:
+    description: Faz o envio do relatório de cobertura de testes para o Codecov
+    steps:
+      - run:
+          command: |
+            apk add bash curl
+            wget -O codecov_bash https://codecov.io/bash
+            bash codecov_bash
 
 jobs:
-  node10x: &template
+  build:
+    parameters:
+      coverage:
+        default: true
+        description: Indica se o relatório de cobertura será gerado e enviado ao Codecov
+        type: boolean
+      docker-auth-username:
+        description: Username usado para autenticação no docker registry
+        default: ""
+        type: string
+      docker-auth-password:
+        description: Password usado para autenticação no docker registry
+        default: ""
+        type: string
+      image:
+        default: node:lts-alpine
+        description: Nome da imagem principal onde rodará o build
+        type: string
     docker:
-      - image: circleci/node:10-jessie
-        #auth:
-          #username: $B2WADS_DOCKER_REGISTRY_USERNAME
-          #password: $B2WADS_DOCKER_REGISTRY_PASSWORD
+      - image: <<parameters.image>>
+        auth:
+          username: <<parameters.docker-auth-username>>
+          password: <<parameters.docker-auth-password>>
       #- image: mongo:3.6
       #- image: elasticsearch:5
       #- image: rabbitmq:3.6-alpine
       #- image: redis:5
     steps:
+      - install-git
       - checkout
-      - run:
-          name: Install deps
-          command: npm install
-      - run:
-          name: Format check
-          command: npm run fmt:check
+      - install-deps
+      - format-check
       - all-tests
-      - run:
-          when: on_success
-          command: bash <(curl -s https://codecov.io/bash)
-  node11x:
-      <<: *template
-      docker:
-        - image: circleci/node:11
-        #- image: mongo:3.6
-        #- image: elasticsearch:5
-        #- image: rabbitmq:3.6-alpine
-        #- image: redis:5
+      - when:
+          condition: <<parameters.coverage>>
+          steps:
+            - coverage-report
+            - upload-coverage
 
-  build:
+  build-image:
     description: Faz login no registry, monta uma imagem docker e faz push para o registry
     parameters:
       registry:
@@ -119,13 +155,15 @@ workflows:
   version: 2
   required-checks:
     jobs:
-      - node10x:
+      - build:
           context: docker-registry-auth
+          image: node:12.14.0-alpine
+          name: node-12
       
       # Remova os comentário abaixo se quiser realizar build 
       # de uma imagem staging do repositório
 
-      # - build: &build-template
+      # - build-image: &build-template
       #     context: docker-registry-auth
       #     name: build-staging
       #     registry: $B2WADS_DOCKER_REGISTRY
@@ -133,7 +171,7 @@ workflows:
       #     registry-password: B2WADS_DOCKER_REGISTRY_PASSWORD
       #     image-tag: staging-$(echo "$CIRCLE_BRANCH" | sed 's/\W/-/g')
       #     requires:
-      #       - node10x
+      #       - node-12
       #     filters:
       #       branches:
       #         ignore: master
@@ -149,7 +187,7 @@ workflows:
       # Remova os comentário abaixo se quiser realizar build 
       # de de imagem latest e tag quando mergear para master
 
-      # - build: 
+      # - build-image:
       #     <<: *build-template
       #     name: build-tag
       #     image-tag: ${CIRCLE_SHA1:0:7}
@@ -163,7 +201,7 @@ workflows:
       #     requires:
       #       - build-tag
 
-      # - build: &build-latest
+      # - build-image: &build-latest
       #     <<: *build-template
       #     name: build-latest
       #     image-tag: latest
@@ -178,5 +216,10 @@ workflows:
 
   optional-checks:
     jobs:
-      - node11x:
-          context: docker-registry-auth
+      - build:
+          coverage: false
+          name: node-lts
+      - build:
+          coverage: false
+          image: node:alpine
+          name: node-latest
