@@ -4,7 +4,8 @@
   "description": "Boilerplate para projetos NodeJS",
   "main": "app.js",
   "dependencies": {
-    "express": "4.17.0"
+    "express": "4.17.0",
+    "pg": "^7.18.1"
   },
   "devDependencies": {
     "acorn": "^7.1.0",
@@ -21,6 +22,7 @@
     "eslint-plugin-security": "1.4.0",
     "eslint-plugin-you-dont-need-lodash-underscore": "6.6.0",
     "mocha": "^6.2.1",
+    "nodemon": "^2.0.2",
     "nyc": "^14.1.1",
     "prettier": "1.17.1",
     "supertest": "4.0.2"
@@ -35,6 +37,7 @@
     "prettier": "./node_modules/.bin/prettier --write \"**/{*.js,*.json,bin/**}\"",
     "prettier:check": "./node_modules/.bin/prettier --check \"**/{*.js,*.json,bin/**}\"",
     "start": "node ./bin/www",
+    "start:dev": "nodemon ./bin/www",
     "test": "./node_modules/.bin/nyc mocha --reporter spec",
     "test:coverage-report": "nyc report --reporter=text-lcov > coverage.lcov",
     "test:acceptance": "npm t test/acceptance/*",
@@ -42,16 +45,12 @@
     "test:unit": "npm t test/unit/*",
     "worker:<worker-name>": "node workers/<worker-name.js>"
   },
-  "repository": {
-    "type": "git",
-    "url": "github.com:b2wads/nodejs-boilerplate"
-  },
   "keywords": [
     "nodejs",
     "boilerplate",
     "webapp",
     "worker"
   ],
-  "author": "B2WADS",
+  "author": "",
   "license": "MIT"
 }
